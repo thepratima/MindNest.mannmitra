@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MindNest – Emotional Support Request</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #2a4a7f;
+    --teal: #3aafa9;
+    --teal-light: #5dc8c2;
+    --green: #4caf78;
+    --orange: #f5873c;
+    --sky: #d6eef8;
+    --mint: #e0f5f1;
+    --bg: #f4f9fc;
+    --white: #ffffff;
+    --text: #2c3e50;
+    --muted: #7a8fa6;
+    --border: #c8dfe9;
+    --shadow: 0 4px 24px rgba(42,74,127,0.10);
+    --radius: 18px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    color: var(--text);
+    padding: 0 0 60px 0;
+  }
+
+  /* Animated background blobs */
+  .bg-blobs {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 0; overflow: hidden;
+  }
+  .blob {
+    position: absolute; border-radius: 50%;
+    filter: blur(70px); opacity: 0.18; animation: blobFloat 12s ease-in-out infinite;
+  }
+  .blob1 { width: 420px; height: 420px; background: var(--teal); top: -120px; left: -80px; animation-delay: 0s; }
+  .blob2 { width: 320px; height: 320px; background: var(--navy); top: 40%; right: -100px; animation-delay: 4s; }
+  .blob3 { width: 260px; height: 260px; background: var(--green); bottom: 5%; left: 10%; animation-delay: 8s; }
+  @keyframes blobFloat {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(20px,-30px) scale(1.05); }
+    66% { transform: translate(-15px,20px) scale(0.97); }
+  }
+
+  .page-wrap {
+    position: relative; z-index: 1;
+    max-width: 680px; margin: 0 auto; padding: 0 16px;
+  }
+
+  /* ── HERO HEADER ── */
+  .hero {
+    text-align: center;
+    padding: 48px 24px 36px;
+    animation: fadeDown 0.7s ease both;
+  }
+  @keyframes fadeDown { from { opacity:0; transform:translateY(-24px); } to { opacity:1; transform:none; } }
+
+  .logo-ring {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 100px; height: 100px; border-radius: 50%;
+    background: linear-gradient(135deg, #b8e4f9 0%, #d0f2ec 50%, #f0faf6 100%);
+    box-shadow: 0 8px 32px rgba(58,175,169,0.25), 0 2px 8px rgba(42,74,127,0.12);
+    margin-bottom: 20px;
+    animation: popIn 0.8s cubic-bezier(.34,1.56,.64,1) 0.2s both;
+  }
+  @keyframes popIn { from { opacity:0; transform:scale(0.5); } to { opacity:1; transform:scale(1); } }
+
+  .logo-ring svg { width: 62px; height: 62px; }
+
+  .brand-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem; font-weight: 600; letter-spacing: -0.5px;
+    color: var(--navy); line-height: 1;
+  }
+  .brand-name span { color: var(--teal); }
+
+  .tagline {
+    font-size: 0.98rem; color: var(--muted); margin-top: 6px;
+    font-weight: 500; letter-spacing: 0.3px;
+  }
+
+  .hero-divider {
+    width: 60px; height: 3px; margin: 18px auto 0;
+    background: linear-gradient(90deg, var(--teal), var(--green));
+    border-radius: 4px;
+  }
+
+  /* ── FORM CARD ── */
+  .form-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    animation: fadeUp 0.7s ease 0.3s both;
+    margin-bottom: 20px;
+  }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:none; } }
+
+  .card-accent {
+    height: 5px;
+    background: linear-gradient(90deg, var(--navy) 0%, var(--teal) 50%, var(--green) 100%);
+  }
+
+  .section-intro {
+    padding: 28px 32px 0;
+  }
+  .section-intro h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem; color: var(--navy); font-weight: 600;
+  }
+  .section-intro p {
+    font-size: 0.92rem; color: var(--muted); margin-top: 6px; line-height: 1.6;
+  }
+
+  /* ── FIELDS ── */
+  .fields { padding: 24px 32px 32px; display: flex; flex-direction: column; gap: 22px; }
+
+  .field-group { display: flex; flex-direction: column; gap: 7px; }
+
+  label {
+    font-size: 0.9rem; font-weight: 700; color: var(--navy);
+    display: flex; align-items: center; gap: 6px;
+  }
+  label .req { color: var(--teal); font-size: 1rem; }
+  label .emoji { font-size: 1.1rem; }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    color: var(--text);
+    background: var(--bg);
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    outline: none;
+    -webkit-appearance: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--teal);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(58,175,169,0.15);
+  }
+  textarea { resize: vertical; min-height: 110px; line-height: 1.6; }
+  select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232a4a7f' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px; }
+
+  .hint { font-size: 0.8rem; color: var(--muted); margin-top: 2px; padding-left: 2px; }
+
+  /* Radio / Checkbox groups */
+  .radio-group, .check-group {
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .radio-item, .check-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    background: var(--bg);
+  }
+  .radio-item:hover, .check-item:hover { border-color: var(--teal); background: var(--mint); }
+  .radio-item input, .check-item input { margin-top: 2px; accent-color: var(--teal); width: 17px; height: 17px; cursor: pointer; flex-shrink: 0; }
+  .radio-item label, .check-item label {
+    font-size: 0.92rem; font-weight: 500; color: var(--text);
+    cursor: pointer; margin: 0;
+  }
+  .radio-item input:checked ~ label,
+  .check-item input:checked ~ label { color: var(--navy); font-weight: 700; }
+
+  /* Scale rating */
+  .scale-wrap { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .scale-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--bg);
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem; font-weight: 700;
+    color: var(--muted); cursor: pointer;
+    transition: all 0.18s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .scale-btn:hover { border-color: var(--teal); color: var(--teal); background: var(--mint); }
+  .scale-btn.active { background: var(--navy); border-color: var(--navy); color: var(--white); transform: scale(1.12); }
+  .scale-labels { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted); padding: 4px 4px 0; }
+
+  /* Section divider */
+  .section-sep {
+    margin: 4px 0 10px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-sep span {
+    font-size: 0.78rem; font-weight: 800; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--teal); white-space: nowrap;
+  }
+  .section-sep::before, .section-sep::after {
+    content:''; flex:1; height:1px; background: var(--border);
+  }
+
+  /* ── SUBMIT ── */
+  .submit-wrap {
+    padding: 0 32px 32px; text-align: center;
+  }
+  .btn-submit {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 16px 44px;
+    background: linear-gradient(135deg, var(--navy) 0%, var(--teal) 100%);
+    color: var(--white); border: none; border-radius: 50px;
+    font-family: 'Nunito', sans-serif; font-size: 1.05rem; font-weight: 800;
+    cursor: pointer; letter-spacing: 0.3px;
+    box-shadow: 0 6px 24px rgba(42,74,127,0.25);
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative; overflow: hidden;
+  }
+  .btn-submit::after {
+    content:''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+    pointer-events: none;
+  }
+  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(42,74,127,0.32); }
+  .btn-submit:active { transform: translateY(0); }
+
+  /* ── DISCLAIMER CARD ── */
+  .disclaimer {
+    background: linear-gradient(135deg, #fff8f4, #fff3ee);
+    border: 1.5px solid #fddfc9;
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin-bottom: 20px;
+    font-size: 0.84rem; color: #a0603a; line-height: 1.6;
+    display: flex; gap: 12px; align-items: flex-start;
+    animation: fadeUp 0.7s ease 0.5s both;
+  }
+  .disclaimer .icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 1px; }
+
+  /* ── FOOTER ── */
+  .footer {
+    text-align: center; font-size: 0.82rem; color: var(--muted);
+    padding: 0 16px; animation: fadeUp 0.7s ease 0.6s both;
+    line-height: 1.7;
+  }
+  .footer a { color: var(--teal); text-decoration: none; font-weight: 700; }
+  .footer a:hover { text-decoration: underline; }
+
+  /* ── SUCCESS STATE ── */
+  .success-card {
+    display: none;
+    background: var(--white); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 56px 32px;
+    text-align: center; animation: popIn 0.6s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  .success-card.show { display: block; }
+  .form-card.hidden, .disclaimer.hidden, .submit-wrap.hidden { display: none; }
+  .success-icon { font-size: 4rem; margin-bottom: 16px; }
+  .success-card h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--navy); margin-bottom: 10px; }
+  .success-card p { color: var(--muted); font-size: 0.97rem; line-height: 1.7; }
+
+  @media (max-width: 500px) {
+    .fields { padding: 20px 20px 28px; }
+    .section-intro { padding: 22px 20px 0; }
+    .submit-wrap { padding: 0 20px 28px; }
+    .brand-name { font-size: 1.9rem; }
+    .scale-btn { width: 38px; height: 38px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Background blobs -->
+<div class="bg-blobs">
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="blob blob3"></div>
+</div>
+
+<div class="page-wrap">
+
+  <!-- Hero Header -->
+  <div class="hero">
+    <div class="logo-ring">
+      <!-- MindNest logo SVG representation -->
+      <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Head silhouette -->
+        <path d="M46 14 C52 14 60 22 60 34 C60 46 53 54 46 56 L44 58 C43 62 41 66 38 68 C37 70 36 70 35 68 L33 60 C26 58 20 50 20 38 C20 24 32 14 46 14Z" fill="#2a4a7f" opacity="0.9"/>
+        <!-- Brain/thought bubble -->
+        <circle cx="38" cy="30" r="10" fill="white" opacity="0.92"/>
+        <circle cx="31" cy="34" r="7" fill="white" opacity="0.92"/>
+        <circle cx="45" cy="34" r="7" fill="white" opacity="0.92"/>
+        <circle cx="38" cy="38" r="7" fill="white" opacity="0.92"/>
+        <!-- People icons inside brain -->
+        <circle cx="34" cy="30" r="2.5" fill="#3aafa9"/>
+        <circle cx="38" cy="28" r="2.5" fill="#f5873c"/>
+        <circle cx="42" cy="30" r="2.5" fill="#4caf78"/>
+        <path d="M31.5 36 C31.5 33.5 36.5 33.5 36.5 36" stroke="#3aafa9" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M35.5 35 C35.5 32.5 40.5 32.5 40.5 35" stroke="#f5873c" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M39.5 36 C39.5 33.5 44.5 33.5 44.5 36" stroke="#4caf78" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- Hand / leaf base -->
+        <path d="M26 54 C22 50 20 44 22 40 C24 48 28 52 34 54 Z" fill="#3aafa9" opacity="0.85"/>
+        <!-- Leaf sprout -->
+        <path d="M44 62 C44 58 48 55 52 56 C50 59 46 61 44 62Z" fill="#4caf78"/>
+      </svg>
+    </div>
+    <div class="brand-name">Mind<span>Nest</span></div>
+    <div class="tagline">Your MannMitra for Emotional Support 🤍</div>
+    <div class="hero-divider"></div>
+  </div>
+
+  <!-- Main Form Card -->
+  <div class="form-card" id="formCard">
+    <div class="card-accent"></div>
+
+    <div class="section-intro">
+      <h2>Emotional Support Request</h2>
+      <p>This is a safe, judgment-free space. Share as much or as little as you're comfortable with. We're here to listen — not to fix or judge. 🌿</p>
+    </div>
+
+    <form id="mindnestForm">
+      <div class="fields">
+
+        <!-- ── SECTION 1: ABOUT YOU ── -->
+        <div class="section-sep"><span>About You</span></div>
+
+        <div class="field-group">
+          <label><span class="emoji">👤</span> What should we call you? <span class="req">*</span></label>
+          <input type="text" placeholder="Your name or a nickname you're comfortable with" required>
+          <div class="hint">You can use a nickname or stay anonymous — whatever feels safe.</div>
+        </div>
+
+        <div class="field-group">
+          <label><span class="emoji">🎂</span> Age Group <span class="req">*</span></label>
+          <select required>
+            <option value="" disabled selected>Select your age group</option>
+            <option>Under 16</option>
+            <option>16 – 18</option>
+            <option>19 – 22</option>
+            <option>23 – 27</option>
+            <option>28 – 35</option>
+            <option>36 and above</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label><span class="emoji">🧩</span> What best describes you? <span class="req">*</span></label>
+          <div class="radio-group">
+            <div class="radio-item">
+              <input type="radio" name="role" id="r_student" value="Student">
+              <label for="r_student">🎓 Student</label>
+            </div>
+            <div class="radio-item">
+              <input type="radio" name="role" id="r_working" value="Working Professional">
+              <label for="r_working">💼 Working Professional</label>
+            </div>
+            <div class="radio-item">
+              <input type="radio" name="role" id="r_homemaker" value="Homemaker">
+              <label for="r_homemaker">🏠 Homemaker</label>
+            </div>
+            <div class="radio-item">
+              <input type="radio" name="role" id="r_other" value="Other">
+              <label for="r_other">🌀 Other / Prefer not to say</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── SECTION 2: HOW YOU'RE FEELING ── -->
+        <div class="section-sep"><span>How You're Feeling</span></div>
+
+        <div class="field-group">
+          <label><span class="emoji">💬</span> What's on your mind today? <span class="req">*</span></label>
+          <textarea placeholder="Share whatever you're going through — stress, loneliness, overthinking, or anything else. There are no wrong answers here. 🌸" required></textarea>
+          <div class="hint">Everything you share stays confidential.</div>
+        </div>
+
+        <div class="field-group">
+          <label><span class="emoji">🌊</span> What are you mainly experiencing? (select all that apply)</label>
+          <div class="check-group">
+            <div class="check-item">
+              <input type="checkbox" id="c1"><label for="c1">😔 Loneliness or feeling disconnected</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="c2"><label for="c2">😟 Stress or anxiety</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="c3"><label for="c3">💭 Overthinking or racing thoughts</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="c4"><label for="c4">😞 Sadness or low mood</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="c5"><label for="c5">😤 Frustration or anger</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="c6"><label for="c6">😴 Burnout or exhaustion</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="c7"><label for="c7">💔 Relationship or family issues</label>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="c8"><label for="c8">🌫️ Something else / I'm not sure</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label><span class="emoji">🌡️</span> How intense is your emotional distress right now? <span class="req">*</span></label>
+          <div class="scale-wrap" id="scaleWrap">
+            <button type="button" class="scale-btn" data-val="1" onclick="selectScale(this)">1</button>
+            <button type="button" class="scale-btn" data-val="2" onclick="selectScale(this)">2</button>
+            <button type="button" class="scale-btn" data-val="3" onclick="selectScale(this)">3</button>
+            <button type="button" class="scale-btn" data-val="4" onclick="selectScale(this)">4</button>
+            <button type="button" class="scale-btn" data-val="5" onclick="selectScale(this)">5</button>
+            <button type="button" class="scale-btn" data-val="6" onclick="selectScale(this)">6</button>
+            <button type="button" class="scale-btn" data-val="7" onclick="selectScale(this)">7</button>
+            <button type="button" class="scale-btn" data-val="8" onclick="selectScale(this)">8</button>
+            <button type="button" class="scale-btn" data-val="9" onclick="selectScale(this)">9</button>
+            <button type="button" class="scale-btn" data-val="10" onclick="selectScale(this)">10</button>
+          </div>
+          <div class="scale-labels"><span>😌 Mild</span><span>😫 Severe</span></div>
+          <input type="hidden" id="scaleValue" name="distress_scale">
+        </div>
+
+        <div class="field-group">
+          <label><span class="emoji">⏳</span> How long have you been feeling this way?</label>
+          <select>
+            <option value="" disabled selected>Select duration</option>
+            <option>Just today</option>
+            <option>A few days</option>
+            <option>About a week</option>
+            <option>2 – 4 weeks</option>
+            <option>More than a month</option>
+            <option>Ongoing for a long time</option>
+          </select>
+        </div>
+
+        <!-- ── SECTION 3: SUPPORT PREFERENCES ── -->
+        <div class="section-sep"><span>How Can We Help</span></div>
+
+        <div class="field-group">
+          <label><span class="emoji">🤝</span> What kind of support are you looking for? <span class="req">*</span></label>
+          <div class="radio-group">
+            <div class="radio-item">
+              <input type="radio" name="support_type" id="s1" value="just_listen">
+              <label for="s1">👂 Just someone to listen to me</label>
+            </div>
+            <div class="radio-item">
+              <input type="radio" name="support_type" id="s2" value="express">
+              <label for="s2">💬 Help expressing my feelings</label>
+            </div>
+            <div class="radio-item">
+              <input type="radio" name="support_type" id="s3" value="perspective">
+              <label for="s3">🔭 A different perspective or gentle guidance</label>
+            </div>
+            <div class="radio-item">
+              <input type="radio" name="support_type" id="s4" value="comfort">
+              <label for="s4">🫂 Comfort and reassurance</label>
+            </div>
+            <div class="radio-item">
+              <input type="radio" name="support_type" id="s5" value="not_sure">
+              <label for="s5">🌀 I'm not sure, just need to talk</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label><span class="emoji">📱</span> Preferred way to connect? <span class="req">*</span></label>
+          <div class="radio-group">
+            <div class="radio-item">
+              <input type="radio" name="connect" id="p1" value="chat">
+              <label for="p1">💬 Chat (text-based)</label>
+            </div>
+            <div class="radio-item">
+              <input type="radio" name="connect" id="p2" value="voice_call">
+              <label for="p2">📞 Voice Call</label>
+            </div>
+            <div class="radio-item">
+              <input type="radio" name="connect" id="p3" value="either">
+              <label for="p3">✨ Either works for me</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label><span class="emoji">🕐</span> When are you usually available?</label>
+          <select>
+            <option value="" disabled selected>Select a time window</option>
+            <option>Morning (7 AM – 11 AM)</option>
+            <option>Afternoon (11 AM – 3 PM)</option>
+            <option>Evening (3 PM – 7 PM)</option>
+            <option>Night (7 PM – 11 PM)</option>
+            <option>Late night (after 11 PM)</option>
+            <option>Flexible / Any time</option>
+          </select>
+        </div>
+
+        <!-- ── SECTION 4: CONTACT ── -->
+        <div class="section-sep"><span>Stay Connected</span></div>
+
+        <div class="field-group">
+          <label><span class="emoji">📧</span> Email (optional)</label>
+          <input type="email" placeholder="yourname@example.com">
+          <div class="hint">Only used to follow up with you. Never shared.</div>
+        </div>
+
+        <div class="field-group">
+          <label><span class="emoji">📱</span> WhatsApp / Phone (optional)</label>
+          <input type="tel" placeholder="+91 XXXXX XXXXX">
+          <div class="hint">For quicker, warmer conversations. Completely optional.</div>
+        </div>
+
+        <div class="field-group">
+          <label><span class="emoji">🔍</span> How did you find MindNest?</label>
+          <select>
+            <option value="" disabled selected>Select one</option>
+            <option>Instagram (@mindnest.mannmitra)</option>
+            <option>Referred by a friend</option>
+            <option>WhatsApp Status</option>
+            <option>Word of mouth</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label><span class="emoji">📝</span> Anything else you'd like us to know?</label>
+          <textarea placeholder="Any additional thoughts, a specific situation, or even just how you're feeling right now…" style="min-height:80px;"></textarea>
+        </div>
+
+      </div><!-- /fields -->
+
+      <!-- Consent checkbox -->
+      <div style="padding: 0 32px 20px;">
+        <div class="check-item" style="border-color: var(--teal); background: var(--mint);">
+          <input type="checkbox" id="consent" required>
+          <label for="consent" style="font-size:0.87rem; color: var(--text);">
+            I understand that MindNest provides emotional support and is <strong>not a substitute for professional therapy or medical advice</strong>. I'm comfortable sharing my feelings here. 🤍
+          </label>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="submit-wrap">
+        <button type="submit" class="btn-submit">
+          <span>💌</span> Send My Request
+        </button>
+        <p style="margin-top:14px; font-size:0.82rem; color:var(--muted);">We'll reach out within 24 hours. You're brave for taking this step. 🌱</p>
+      </div>
+    </form>
+  </div><!-- /form-card -->
+
+  <!-- Disclaimer -->
+  <div class="disclaimer" id="disclaimer">
+    <span class="icon">⚠️</span>
+    <div>
+      <strong>Important Notice:</strong> MindNest is an emotional support service and is <em>not</em> a replacement for licensed therapy, psychiatry, or medical advice. If you are in crisis or feel unsafe, please contact a professional helpline immediately. <strong>iCall India: 9152987821</strong>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p>Made with 🤍 by <strong>MindNest</strong> · Your MannMitra for Emotional Support</p>
+    <p>
+      <a href="https://instagram.com/mindnest.mannmitra" target="_blank">@mindnest.mannmitra</a> &nbsp;·&nbsp;
+      <a href="mailto:mindnest.support@gmail.com">mindnest.support@gmail.com</a>
+    </p>
+    <p style="margin-top:8px; font-size:0.78rem; opacity:0.7;">All information shared is kept strictly confidential.</p>
+  </div>
+
+  <!-- Success State -->
+  <div class="success-card" id="successCard">
+    <div class="success-icon">🌸</div>
+    <h2>Thank You for Reaching Out</h2>
+    <p>
+      You just took a brave and beautiful step. 💛<br><br>
+      We've received your message and will get back to you within <strong>24 hours</strong>.<br>
+      Until then, remember — <em>you are not alone.</em><br><br>
+      With warmth,<br>
+      <strong>The MindNest Team 🤍</strong>
+    </p>
+  </div>
+
+</div><!-- /page-wrap -->
+
+<script>
+  function selectScale(btn) {
+    document.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('scaleValue').value = btn.dataset.val;
+  }
+
+  document.getElementById('mindnestForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    // Show success state
+    document.getElementById('formCard').classList.add('hidden');
+    document.getElementById('disclaimer').classList.add('hidden');
+    document.getElementById('successCard').classList.add('show');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+</script>
+</body>
+</html>
